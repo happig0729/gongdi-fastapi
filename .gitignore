@@ -21,6 +21,10 @@ env/
 
 # Logs
 *.log
+logs/
+logs/*.log
+**/logs/
+**/logs/*.log
 
 # Local development settings
 .env
