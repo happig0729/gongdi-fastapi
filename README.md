@@ -16,13 +16,21 @@
 │   │   ├── __init__.py
 │   │   └── worker_service.py   # 工人服务模块示例
 │   └── __init__.py
+├── web/                        # 前端项目目录
+│   ├── src/
+│   │   ├── api/               # API接口封装
+│   │   ├── components/        # Vue组件
+│   │   ├── App.vue           # 主应用组件
+│   │   └── main.ts           # 应用入口
+│   ├── package.json          # 前端依赖配置
+│   └── vite.config.ts        # Vite配置
 ├── examples/
-│   └── dashscope_demo.py       # 千问API使用示例
-├── app.py                      # FastAPI 主应用
-├── example.py                  # LangChain函数调用示例
-├── requirements.txt            # 项目依赖
-├── setup.py                    # 包安装配置
-└── README.md                   # 项目说明
+│   └── dashscope_demo.py     # 千问API使用示例
+├── app.py                    # FastAPI 主应用
+├── example.py               # LangChain函数调用示例
+├── requirements.txt         # 后端依赖
+├── setup.py                # 包安装配置
+└── README.md               # 项目说明
 ```
 
 ## 功能特点
@@ -34,8 +42,11 @@
 - 内置常用工具函数（时间查询、天气查询等）
 - 支持同步调用和流式响应
 - 完整的 API 文档（Swagger UI）
+- 现代化的Web聊天界面（Vue 3 + Element Plus）
 
 ## 环境配置
+
+### 后端配置
 
 1. 创建 Python 虚拟环境（推荐使用 uv）
 ```bash
@@ -57,13 +68,32 @@ $env:DASHSCOPE_API_KEY="您的阿里云DashScope_API密钥"
 DASHSCOPE_API_KEY=您的阿里云DashScope_API密钥
 ```
 
+### 前端配置
+
+1. 进入前端项目目录
+```bash
+cd web
+```
+
+2. 安装依赖
+```bash
+pnpm install
+```
+
 ## 运行服务
 
+### 启动后端服务
 ```bash
 uvicorn app:app --reload
 ```
+后端服务将在 http://localhost:8000 上运行。
 
-服务将在 http://localhost:8000 上运行。
+### 启动前端服务
+```bash
+cd web
+pnpm dev
+```
+前端服务将在 http://localhost:5173 上运行。
 
 ## API 接口
 
@@ -134,6 +164,17 @@ def get_weather(location: str) -> str:
     return weather_info
 ```
 
+### 前端开发
+
+1. 添加新的API接口
+在 `web/src/api` 目录下创建或修改相应的API接口文件
+
+2. 添加新的组件
+在 `web/src/components` 目录下创建新的Vue组件
+
+3. 修改样式
+在组件中使用 `<style scoped>` 添加组件特定的样式
+
 ### 错误处理
 
 服务使用统一的错误处理机制：
@@ -146,6 +187,8 @@ def get_weather(location: str) -> str:
 - 使用异步处理提高并发性能
 - 实现请求限流和缓存机制
 - 支持流式响应减少等待时间
+- 前端组件按需加载
+- 使用Vite进行快速开发和构建
 
 ## 部署建议
 
@@ -157,6 +200,11 @@ gunicorn app:app -w 4 -k uvicorn.workers.UvicornWorker
 2. 配置 Nginx 反向代理
 3. 使用 Supervisor 管理进程
 4. 配置日志轮转
+5. 前端构建和部署
+```bash
+cd web
+pnpm build
+```
 
 ## 贡献指南
 

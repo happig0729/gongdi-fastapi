@@ -61,16 +61,40 @@ const sendMessage = async () => {
   
   messages.value.push(userMessage)
   loading.value = true
-  
   try {
-    const response = await chatApi.simpleChat({
-      prompt: inputMessage.value,
-      system_message: '你是一个建筑工地智能助手'
+    const response = await chatApi.functionCall({
+      query: inputMessage.value,
+      tools: [
+        {
+          type: 'function',
+          function: {
+            name: 'get_current_time',
+            description: '获取当前时间'
+          }
+        },
+        {
+          type: 'function',
+          function: {
+            name: 'get_current_weather',
+            description: '获取指定位置的天气信息',
+            parameters: {
+              type: 'object',
+              properties: {
+                location: {
+                  type: 'string',
+                  description: '城市名称，如：北京、上海等'
+                }
+              },
+              required: ['location']
+            }
+          }
+        }
+      ]
     })
     
     const assistantMessage: ChatMessage = {
       role: 'assistant',
-      content: response.data.answer
+      content: response.data || response.data.message?.content || '抱歉，我无法处理您的请求。'
     }
     
     messages.value.push(assistantMessage)

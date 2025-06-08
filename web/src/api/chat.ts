@@ -16,13 +16,25 @@ export interface ChatRequest {
   history?: ChatMessage[]
 }
 
+export interface FunctionCallRequest {
+  query: string
+  tools?: Array<{
+    type?: string
+    function?: {
+      name: string
+      description?: string
+      parameters?: Record<string, any>
+    }
+  }>
+}
+
 export const chatApi = {
   simpleChat: (data: ChatRequest) => {
     return api.post('/chat', data)
   },
   
-  functionCall: (query: string) => {
-    return api.post('/function_call', { query })
+  functionCall: (data: FunctionCallRequest) => {
+    return api.post('/function_call', data)
   },
   
   completeFunctionCall: (query: string) => {
