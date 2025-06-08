@@ -1,6 +1,6 @@
-# LangChain函数调用封装 - 阿里云千问版
+# 工地智能助手 - FastAPI 服务
 
-这个项目演示了如何使用LangChain实现函数调用的Python类封装，适用于建筑工地智能助手等场景。项目现已支持阿里云千问大模型API。
+这是一个基于 FastAPI 和阿里云千问大模型的智能助手服务，专为建筑工地场景设计。项目集成了 LangChain 函数调用功能，支持多轮对话和工具函数调用。
 
 ## 项目结构
 
@@ -18,7 +18,7 @@
 │   └── __init__.py
 ├── examples/
 │   └── dashscope_demo.py       # 千问API使用示例
-├── dashscope_demo.py           # 根目录示例脚本
+├── app.py                      # FastAPI 主应用
 ├── example.py                  # LangChain函数调用示例
 ├── requirements.txt            # 项目依赖
 ├── setup.py                    # 包安装配置
@@ -27,18 +27,20 @@
 
 ## 功能特点
 
-- 使用LangChain实现函数调用（Function Calling）的统一封装
-- 支持直接添加函数或使用装饰器方式注册函数
-- 自动处理函数文档字符串作为描述
-- 支持同步调用和流式调用
-- 内置聊天历史处理
-- **新增**: 支持阿里云千问模型API
+- 基于 FastAPI 构建的 RESTful API 服务
+- 集成阿里云千问大模型 API
+- 支持 LangChain 函数调用（Function Calling）
+- 支持多轮对话和上下文管理
+- 内置常用工具函数（时间查询、天气查询等）
+- 支持同步调用和流式响应
+- 完整的 API 文档（Swagger UI）
 
 ## 环境配置
 
-1. 创建Python虚拟环境
+1. 创建 Python 虚拟环境（推荐使用 uv）
 ```bash
 uv venv
+uv venv activate
 ```
 
 2. 安装依赖
@@ -46,126 +48,13 @@ uv venv
 uv pip install -r requirements.txt
 ```
 
-3. 设置API密钥
-```python
-# 在代码中设置
-os.environ["DASHSCOPE_API_KEY"] = "您的阿里云DashScope_API密钥"
-```
-
-## 使用方法 - 直接API调用
-
-使用千问API客户端：
-
-```python
-from app.core.dashscope_client import DashscopeClient
-
-# 创建千问API客户端
-client = DashscopeClient()
-
-# 创建消息
-messages = client.format_messages(
-    prompt="今天杭州天气怎么样？",
-    system_message="你是一个建筑工地智能助手。"
-)
-
-# 发送聊天请求
-response = client.chat(messages)
-print(response['choices'][0]['message']['content'])
-
-# 函数调用示例
-tools = [...]  # 定义工具
-response = client.function_call(messages, tools)
-```
-
-## 使用方法 - LangChain集成
-
-使用千问大模型的LangChain封装示例：
-
-```python
-from langchain_dashscope import ChatDashscope
-from app.core.langchain_agent import LangChainFunctionAgent
-
-# 创建千问模型实例
-llm = ChatDashscope(
-    model="qwen-plus",  # 使用千问模型
-    dashscope_api_key=os.environ.get("DASHSCOPE_API_KEY"),
-    temperature=0,
-)
-
-# 创建LangChain函数调用代理
-agent = LangChainFunctionAgent(
-    llm=llm,
-    system_message="你是一个建筑工地智能助手，可以回答关于工地情况的问题。"
-)
-
-# 添加函数...
-# 构建代理...
-# 使用方式与OpenAI模式相同
-```
-
-## 运行示例
-
-运行千问API直接调用示例：
+3. 配置环境变量
 ```bash
-python dashscope_demo.py
-```
+# Windows PowerShell
+$env:DASHSCOPE_API_KEY="您的阿里云DashScope_API密钥"
 
-运行LangChain函数调用示例：
-```bash
-python example.py
-```
-
-## 千问模型说明
-
-目前项目支持的千问系列模型包括：
-- qwen-plus: 通用对话模型，支持Function Calling
-- qwen-max: 高级对话模型，支持更复杂的Function Calling
-- qwen-turbo: 轻量级对话模型
-
-更多模型参考：[阿里云模型列表](https://help.aliyun.com/zh/model-studio/getting-started/models)
-
-## 故障排除
-
-如果遇到问题，请检查：
-
-1. API密钥是否正确设置
-2. 网络连接是否正常
-3. 是否安装了正确版本的依赖库
-
-## 开发注意事项
-
-- 使用 `dashscope` 库的 `Generation.call()` 方法调用千问API
-- 注意处理API响应结果的格式
-- 在测试时可以使用测试模式，避免频繁调用API
-
-# 千问API服务
-
-这是一个使用FastAPI封装阿里云千问大模型API的服务。
-
-## 功能特性
-
-- 支持简单聊天接口
-- 支持函数调用
-- 支持完整的函数调用流程
-- 支持多轮对话
-- 集成了常用工具函数（时间查询、天气查询）
-
-## 安装
-
-### 使用uv（推荐）
-
-```bash
-uv venv
-uv venv activate
-uv pip install -r requirements.txt
-```
-
-### 使用传统方式
-
-```bash
-python -m venv venv
-venv\Scripts\activate  # Windows
-pip install -r requirements.txt
+# 或创建 .env 文件
+DASHSCOPE_API_KEY=您的阿里云DashScope_API密钥
 ```
 
 ## 运行服务
@@ -176,63 +65,44 @@ uvicorn app:app --reload
 
 服务将在 http://localhost:8000 上运行。
 
-## API接口
+## API 接口
 
 ### 基础信息
 
-- 接口文档: http://localhost:8000/docs
-- 基础健康检查: GET http://localhost:8000/
+- API 文档: http://localhost:8000/docs
+- 健康检查: GET http://localhost:8000/
 
-### 聊天接口
+### 主要接口
 
-- 简单聊天: POST http://localhost:8000/api/chat
-- 函数调用: POST http://localhost:8000/api/function_call
-- 完整函数调用流程: POST http://localhost:8000/api/complete_function_call
-- 多轮对话: POST http://localhost:8000/api/multi_turn_chat
-
-## 示例请求
-
-### 简单聊天
-
+1. 简单聊天
 ```bash
-curl -X 'POST' \
-  'http://localhost:8000/api/chat' \
-  -H 'Content-Type: application/json' \
-  -d '{
+POST /api/chat
+{
   "prompt": "你好，请介绍一下你自己",
   "system_message": "你是一个建筑工地智能助手"
-}'
+}
 ```
 
-### 函数调用
-
+2. 函数调用
 ```bash
-curl -X 'POST' \
-  'http://localhost:8000/api/function_call' \
-  -H 'Content-Type: application/json' \
-  -d '{
+POST /api/function_call
+{
   "query": "现在几点了？"
-}'
+}
 ```
 
-### 完整函数调用流程
-
+3. 完整函数调用流程
 ```bash
-curl -X 'POST' \
-  'http://localhost:8000/api/complete_function_call' \
-  -H 'Content-Type: application/json' \
-  -d '{
+POST /api/complete_function_call
+{
   "query": "今天杭州的天气怎么样？"
-}'
+}
 ```
 
-### 多轮对话
-
+4. 多轮对话
 ```bash
-curl -X 'POST' \
-  'http://localhost:8000/api/multi_turn_chat' \
-  -H 'Content-Type: application/json' \
-  -d '{
+POST /api/multi_turn_chat
+{
   "prompt": "工地上的安全措施有哪些？",
   "history": [
     {
@@ -244,17 +114,58 @@ curl -X 'POST' \
       "content": "根据系统记录，目前工地上有120名工人在岗。"
     }
   ]
-}'
+}
 ```
 
-## 环境变量
+## 开发指南
 
-在生产环境中，请设置以下环境变量：
+### 添加新的工具函数
 
+1. 在 `app/services` 目录下创建新的服务模块
+2. 使用装饰器注册函数：
+
+```python
+from app.core.langchain_agent import register_function
+
+@register_function
+def get_weather(location: str) -> str:
+    """获取指定城市的天气信息"""
+    # 实现函数逻辑
+    return weather_info
 ```
-DASHSCOPE_API_KEY=你的阿里云API密钥
+
+### 错误处理
+
+服务使用统一的错误处理机制：
+- 400: 请求参数错误
+- 401: 认证失败
+- 500: 服务器内部错误
+
+## 性能优化
+
+- 使用异步处理提高并发性能
+- 实现请求限流和缓存机制
+- 支持流式响应减少等待时间
+
+## 部署建议
+
+1. 使用 Gunicorn 作为生产环境服务器
+```bash
+gunicorn app:app -w 4 -k uvicorn.workers.UvicornWorker
 ```
 
-## 测试模式
+2. 配置 Nginx 反向代理
+3. 使用 Supervisor 管理进程
+4. 配置日志轮转
 
-在`app.py`中，可以设置`TEST_MODE = True`来启用测试模式，不需要真实的API调用。 
+## 贡献指南
+
+1. Fork 项目
+2. 创建特性分支
+3. 提交更改
+4. 推送到分支
+5. 创建 Pull Request
+
+## 许可证
+
+MIT License 
