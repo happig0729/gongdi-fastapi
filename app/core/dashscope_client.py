@@ -22,6 +22,19 @@ from app.core.llm_config import (
 # 获取logger
 logger = logging.getLogger("gongdi-api.dashscope")
 
+def to_dict(obj):
+    """递归将对象转为dict"""
+    if isinstance(obj, dict):
+        return {k: to_dict(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [to_dict(i) for i in obj]
+    elif hasattr(obj, 'to_dict'):
+        return obj.to_dict()
+    elif hasattr(obj, '__dict__'):
+        return {k: to_dict(v) for k, v in obj.__dict__.items() if not k.startswith('_')}
+    else:
+        return obj
+
 class DashscopeClient:
     """阿里云千问API客户端"""
     
@@ -89,17 +102,17 @@ class DashscopeClient:
                 'message' in response.output['choices'][0] and 
                 'tool_calls' in response.output['choices'][0]['message']):
                 # 返回包含工具调用的完整响应
-                return {
+                return to_dict({
                     'status_code': response.status_code,
                     'request_id': response.request_id,
                     'choices': [{
                         'message': response.output['choices'][0]['message']
                     }],
                     'usage': response.output.get('usage', {})
-                }
+                })
             else:
                 # 返回普通响应
-                return {
+                return to_dict({
                     'status_code': response.status_code,
                     'request_id': response.request_id,
                     'choices': [{
@@ -109,7 +122,7 @@ class DashscopeClient:
                         }
                     }],
                     'usage': response.output.get('usage', {})
-                }
+                })
         else:
             raise Exception(f"API调用失败: {response.code} - {response.message}")
     
@@ -225,7 +238,7 @@ class DashscopeClient:
                     'usage': response.output.get('usage', {})
                 }
                 logger.debug(f"成功处理响应: request_id={result['request_id']}")
-                return result
+                return to_dict(result)
             else:
                 error_msg = f"API调用失败: {response.code} - {response.message}"
                 logger.error(error_msg)

@@ -1,0 +1,11 @@
+# 基础依赖
+python-dotenv==1.0.0
+requests==2.31.0
+
+# 阿里云模型支持
+dashscope==1.13.6
+
+# 工具和应用框架
+fastapi==0.110.0
+uvicorn==0.27.1
+pydantic==2.6.1
