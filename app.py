@@ -43,7 +43,7 @@ logger.info(f"日志文件路径: {log_file}")
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # 手动设置环境变量
-os.environ["DASHSCOPE_API_KEY"] = "sk-baf39aa1386f4a4395cc5642defebc0f"
+os.environ["DASHSCOPE_API_KEY"] = os.getenv("DASHSCOPE_API_KEY", "sk-baf39aa1386f4a4395cc5642defebc0f")
 
 # 调试模式设置
 DEBUG_MODE = True  # 设置为True启用调试模式
